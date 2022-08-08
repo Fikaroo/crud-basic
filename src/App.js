@@ -1,21 +1,25 @@
 import React from "react";
 import { useState } from "react";
 import Personals from "./components/Personals";
-import { BiEdit } from "react-icons/bi";
+import { BiEdit, BiLockOpenAlt, BiLockAlt } from "react-icons/bi";
 import { IoMdAdd } from "react-icons/io";
+import { useDispatch } from "react-redux";
+import { addPersonal } from "./features/personalsSlicer";
 
 const App = () => {
   const [isAddPersonal, setAddPersonal] = useState(false);
+  const [isAutoClose, setAutoClose] = useState(false);
   const [personalName, setPersonalName] = useState("");
-
+  const dispatch = useDispatch();
   const handleAddPersonal = () => {
     setAddPersonal(!isAddPersonal);
   };
 
-  const addPersonal = (e) => {
+  const handleSubmit = (e, isAutoClose) => {
     e.preventDefault();
-    setAddPersonal(false);
-    console.log(personalName);
+    isAutoClose ? setAddPersonal(true) : setAddPersonal(false);
+    setPersonalName("");
+    dispatch(addPersonal(personalName));
   };
 
   const handleNameValue = (e) => {
@@ -40,27 +44,45 @@ const App = () => {
           </button>
         </div>
         {isAddPersonal && (
-          <div className="border border-solid rounded-md px-6 py-4">
-            <form className="flex flex-col gap-3" onSubmit={addPersonal}>
-              <label>Personal Name:</label>
-              <input
-                onChange={handleNameValue}
-                value={personalName}
-                type="text"
-                className="max-w-md rounded-md border border-solid py-2 px-2 flex focus:outline-0"
+          <div className="border border-solid rounded-md relative px-6 py-4 ">
+            {isAutoClose ? (
+              <BiLockAlt
+                onClick={() => setAutoClose(false)}
+                size={24}
+                className="absolute right-6 top-2 hover:cursor-pointer"
               />
+            ) : (
+              <BiLockOpenAlt
+                onClick={() => setAutoClose(true)}
+                size={24}
+                className="absolute right-6 top-2 hover:cursor-pointer"
+              />
+            )}
+            <form
+              className="flex flex-col gap-3 pt-3"
+              onSubmit={(e) => handleSubmit(e, isAutoClose)}
+            >
+              <label>Personal Name:</label>
+              <div className="flex justify-between ">
+                <input
+                  onChange={handleNameValue}
+                  value={personalName}
+                  type="text"
+                  className="w-1/4 min-w-max rounded-md border border-solid py-2 px-2 flex focus:outline-0"
+                />
 
-              <button
-                type="submit"
-                className=" justify-center items-center gap-3 flex self-end bg-indigo-500 hover:bg-indigo-700 text-white px-6 py-2 font-semibold rounded-md"
-              >
-                <IoMdAdd /> Add
-              </button>
+                <button
+                  type="submit"
+                  className=" w-28 justify-center items-center gap-3 flex self-end bg-indigo-500 hover:bg-indigo-700 text-white px-6 py-2 font-semibold rounded-md"
+                >
+                  <IoMdAdd /> Add
+                </button>
+              </div>
             </form>
           </div>
         )}
       </div>
-      <Personals inputName={personalName} />
+      <Personals />
     </div>
   );
 };
